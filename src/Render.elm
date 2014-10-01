@@ -4,14 +4,14 @@ import Html
 import Html (node, (:=), toElement, Html, text, px)
 import String
 
-render : Int -> Int -> CanvasLayer -> Element
-render w h c = renderRoot w h <| renderCanvas c
+render : (Int, Int) -> CanvasLayer -> Element
+render dims c = renderRoot dims <| renderCanvas c
 
 terminalFont = "Consolas,Menlo,\"Bitstream Vera Sans Mono\",monospace,\"Powerline Symbols\""
 terminalFontSize = 13
 
-renderRoot : Int -> Int -> [ Html ] -> Element
-renderRoot w h canvas =
+renderRoot : (Int, Int) -> [ Html ] -> Element
+renderRoot (w, h) canvas =
   node "pre"
     [ "id" := "root" ]
     [ "fontFamily" := terminalFont

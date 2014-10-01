@@ -12080,27 +12080,34 @@ Elm.Nagious.make = function (_elm) {
    _A = _N.Array.make(_elm),
    _E = _N.Error.make(_elm),
    $moduleName = "Nagious",
-   $Basics = Elm.Basics.make(_elm),
    $Color = Elm.Color.make(_elm),
    $Graphics$Element = Elm.Graphics.Element.make(_elm),
-   $Render = Elm.Render.make(_elm);
+   $Render = Elm.Render.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $Window = Elm.Window.make(_elm);
    var b = A2($Render.Glyph,
    $Color.blue,
    _U.chr("b"));
    var a = A2($Render.Glyph,
    $Color.red,
    _U.chr("a"));
-   var main = A2($Render.render,
-   80,
-   80)($Render.CanvasLayer(_L.fromArray([_L.fromArray([a
-                                                      ,b
-                                                      ,b
-                                                      ,a])
-                                        ,_L.fromArray([b,a,a,b])
-                                        ,_L.fromArray([b,a,b,a])])));
+   var canvas = $Render.CanvasLayer(_L.fromArray([_L.fromArray([a
+                                                               ,b
+                                                               ,b
+                                                               ,a])
+                                                 ,_L.fromArray([b,a,a,b])
+                                                 ,_L.fromArray([b,a,b,a])]));
+   var main = A2($Signal._op["<~"],
+   function (d) {
+      return A2($Render.render,
+      d,
+      canvas);
+   },
+   $Window.dimensions);
    _elm.Nagious.values = {_op: _op
                          ,a: a
                          ,b: b
+                         ,canvas: canvas
                          ,main: main};
    return _elm.Nagious.values;
 };Elm.Render = Elm.Render || {};
@@ -12171,30 +12178,32 @@ Elm.Render.make = function (_elm) {
    });
    var terminalFontSize = 13;
    var terminalFont = "Consolas,Menlo,\"Bitstream Vera Sans Mono\",monospace,\"Powerline Symbols\"";
-   var renderRoot = F3(function (w,
-   h,
+   var renderRoot = F2(function (_v7,
    canvas) {
-      return A2($Html.toElement,
-      w,
-      h)(A4($Html.node,
-      "pre",
-      _L.fromArray([A2($Html._op[":="],
-      "id",
-      "root")]),
-      _L.fromArray([A2($Html._op[":="],
-                   "fontFamily",
-                   terminalFont)
-                   ,A2($Html._op[":="],
-                   "fontSize",
-                   $Html.px(terminalFontSize))]),
-      canvas));
+      return function () {
+         switch (_v7.ctor)
+         {case "_Tuple2":
+            return A2($Html.toElement,
+              _v7._0,
+              _v7._1)(A4($Html.node,
+              "pre",
+              _L.fromArray([A2($Html._op[":="],
+              "id",
+              "root")]),
+              _L.fromArray([A2($Html._op[":="],
+                           "fontFamily",
+                           terminalFont)
+                           ,A2($Html._op[":="],
+                           "fontSize",
+                           $Html.px(terminalFontSize))]),
+              canvas));}
+         _E.Case($moduleName,
+         "between lines 15 and 20");
+      }();
    });
-   var render = F3(function (w,
-   h,
+   var render = F2(function (dims,
    c) {
-      return A2(renderRoot,
-      w,
-      h)(renderCanvas(c));
+      return renderRoot(dims)(renderCanvas(c));
    });
    _elm.Render.values = {_op: _op
                         ,render: render
