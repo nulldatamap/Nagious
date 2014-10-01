@@ -1,23 +1,35 @@
 module Render where
 
-import Html (..)
+import Html
+import Html (node, (:=), toElement, Html, text, px)
 import String
 
-finishCanvas : Html -> Element
-finishCanvas canvas =
+render : Int -> Int -> CanvasLayer -> Element
+render w h c = renderRoot w h <| renderCanvas c
+
+terminalFont = "Consolas,Menlo,\"Bitstream Vera Sans Mono\",monospace,\"Powerline Symbols\""
+terminalFontSize = 13
+
+renderRoot : Int -> Int -> [ Html ] -> Element
+renderRoot w h canvas =
   node "pre"
     [ "id" := "root" ]
-    [ "fontFamily" := "Consolas,Menlo,\"Bitstream Vera Sans Mono\",monospace,\"Powerline Symbols\""
-    , "fontSize" := "13px" ]
-    ( repeat 24 makeLine )
-    |> toElement 100 80
+    [ "fontFamily" := terminalFont
+    , "fontSize" := px terminalFontSize ]
+    canvas
+    |> toElement w h
 
 data Glyph = Glyph Color Char
 
-data CanvasLayer = CanvasLayer Int Int [[Glyph]]
+data CanvasLayer = CanvasLayer [[Glyph]]
 
 -- Takes a canvas layer and turns it into the rendered body of
 -- the terminal view to be embedded into the root of the application.
-render : CanvasLayer -> Html
-
-
+renderCanvas : CanvasLayer -> [ Html ]
+renderCanvas (CanvasLayer ls) =
+  let renderLine l = node "div" [] [] <| map renderGylph l
+      renderGylph (Glyph col chr) = node "span"
+                                         []
+                                         [ "color" := Html.color col ]
+                                         [ text <| String.cons chr "" ]
+  in map renderLine ls

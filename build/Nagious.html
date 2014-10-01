@@ -12080,10 +12080,27 @@ Elm.Nagious.make = function (_elm) {
    _A = _N.Array.make(_elm),
    _E = _N.Error.make(_elm),
    $moduleName = "Nagious",
+   $Basics = Elm.Basics.make(_elm),
+   $Color = Elm.Color.make(_elm),
    $Graphics$Element = Elm.Graphics.Element.make(_elm),
    $Render = Elm.Render.make(_elm);
-   var main = $Render.makeCanvas;
+   var b = A2($Render.Glyph,
+   $Color.blue,
+   _U.chr("b"));
+   var a = A2($Render.Glyph,
+   $Color.red,
+   _U.chr("a"));
+   var main = A2($Render.render,
+   80,
+   80)($Render.CanvasLayer(_L.fromArray([_L.fromArray([a
+                                                      ,b
+                                                      ,b
+                                                      ,a])
+                                        ,_L.fromArray([b,a,a,b])
+                                        ,_L.fromArray([b,a,b,a])])));
    _elm.Nagious.values = {_op: _op
+                         ,a: a
+                         ,b: b
                          ,main: main};
    return _elm.Nagious.values;
 };Elm.Render = Elm.Render || {};
@@ -12100,35 +12117,93 @@ Elm.Render.make = function (_elm) {
    _E = _N.Error.make(_elm),
    $moduleName = "Render",
    $Basics = Elm.Basics.make(_elm),
+   $Color = Elm.Color.make(_elm),
    $Graphics$Element = Elm.Graphics.Element.make(_elm),
    $Html = Elm.Html.make(_elm),
    $List = Elm.List.make(_elm),
    $String = Elm.String.make(_elm);
-   var makeLine = A3($Html.node,
-   "div",
-   _L.fromArray([]),
-   _L.fromArray([]))(_L.fromArray([$Html.text(_L.append("|",
-   _L.append(A2($String.repeat,
-   78,
-   " "),
-   "|")))]));
-   var makeCanvas = A2($Html.toElement,
-   100,
-   80)(A4($Html.node,
-   "pre",
-   _L.fromArray([A2($Html._op[":="],
-   "id",
-   "root")]),
-   _L.fromArray([A2($Html._op[":="],
-                "fontFamily",
-                "Consolas,Menlo,\"Bitstream Vera Sans Mono\",monospace,\"Powerline Symbols\"")
-                ,A2($Html._op[":="],
-                "fontSize",
-                "13px")]),
-   A2($List.repeat,24,makeLine)));
+   var renderCanvas = function (_v0) {
+      return function () {
+         switch (_v0.ctor)
+         {case "CanvasLayer":
+            return function () {
+                 var renderGylph = function (_v3) {
+                    return function () {
+                       switch (_v3.ctor)
+                       {case "Glyph":
+                          return A4($Html.node,
+                            "span",
+                            _L.fromArray([]),
+                            _L.fromArray([A2($Html._op[":="],
+                            "color",
+                            $Html.color(_v3._0))]),
+                            _L.fromArray([$Html.text(A2($String.cons,
+                            _v3._1,
+                            ""))]));}
+                       _E.Case($moduleName,
+                       "between lines 31 and 34");
+                    }();
+                 };
+                 var renderLine = function (l) {
+                    return A3($Html.node,
+                    "div",
+                    _L.fromArray([]),
+                    _L.fromArray([]))(A2($List.map,
+                    renderGylph,
+                    l));
+                 };
+                 return A2($List.map,
+                 renderLine,
+                 _v0._0);
+              }();}
+         _E.Case($moduleName,
+         "between lines 30 and 35");
+      }();
+   };
+   var CanvasLayer = function (a) {
+      return {ctor: "CanvasLayer"
+             ,_0: a};
+   };
+   var Glyph = F2(function (a,b) {
+      return {ctor: "Glyph"
+             ,_0: a
+             ,_1: b};
+   });
+   var terminalFontSize = 13;
+   var terminalFont = "Consolas,Menlo,\"Bitstream Vera Sans Mono\",monospace,\"Powerline Symbols\"";
+   var renderRoot = F3(function (w,
+   h,
+   canvas) {
+      return A2($Html.toElement,
+      w,
+      h)(A4($Html.node,
+      "pre",
+      _L.fromArray([A2($Html._op[":="],
+      "id",
+      "root")]),
+      _L.fromArray([A2($Html._op[":="],
+                   "fontFamily",
+                   terminalFont)
+                   ,A2($Html._op[":="],
+                   "fontSize",
+                   $Html.px(terminalFontSize))]),
+      canvas));
+   });
+   var render = F3(function (w,
+   h,
+   c) {
+      return A2(renderRoot,
+      w,
+      h)(renderCanvas(c));
+   });
    _elm.Render.values = {_op: _op
-                        ,makeLine: makeLine
-                        ,makeCanvas: makeCanvas};
+                        ,render: render
+                        ,terminalFont: terminalFont
+                        ,terminalFontSize: terminalFontSize
+                        ,renderRoot: renderRoot
+                        ,Glyph: Glyph
+                        ,CanvasLayer: CanvasLayer
+                        ,renderCanvas: renderCanvas};
    return _elm.Render.values;
 };Elm.Html = Elm.Html || {};
 Elm.Html.make = function (_elm) {
