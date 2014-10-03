@@ -19,7 +19,7 @@ renderRoot (w, h) canvas =
     canvas
     |> toElement w h
 
-data Glyph = Glyph Color Char
+data Glyph = Glyph Color Color Char
 
 data CanvasLayer = CanvasLayer [[Glyph]]
 
@@ -28,8 +28,9 @@ data CanvasLayer = CanvasLayer [[Glyph]]
 renderCanvas : CanvasLayer -> [ Html ]
 renderCanvas (CanvasLayer ls) =
   let renderLine l = node "div" [] [] <| map renderGylph l
-      renderGylph (Glyph col chr) = node "span"
+      renderGylph (Glyph fc bc chr) = node "span"
                                          []
-                                         [ "color" := Html.color col ]
+                                         [ "color" := Html.color fc
+                                         , "backgroundColor" := Html.color bc ]
                                          [ text <| String.cons chr "" ]
   in map renderLine ls
