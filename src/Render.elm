@@ -22,12 +22,20 @@ renderRoot (w, h) canvas =
 data Glyph = Glyph Color Color Char
            | Empty
 
-data CanvasLayer = CanvasLayer [[Glyph]]
+type CanvasLayer = [[Glyph]]
+
+mergeCanvas : CanvasLayer -> CanvasLayer -> CanvasLayer
+mergeCanvas a b =
+  let mergeGylph bottom top =
+        case top of
+          Empty -> bottom
+          _     -> top
+  in zipWith (zipWith mergeGylph) a b
 
 -- Takes a canvas layer and turns it into the rendered body of
 -- the terminal view to be embedded into the root of the application.
 renderCanvas : CanvasLayer -> [ Html ]
-renderCanvas (CanvasLayer ls) =
+renderCanvas ls =
   let renderLine l = node "div" [] [] <| map renderGylph l
       renderGylph gyl =
         case gyl of

@@ -3,14 +3,22 @@ module Nagious where
 import Render
 import Window
 
-a = Render.Glyph red  black 'a'
-b = Render.Glyph blue black 'b'
+w = Render.Glyph white black '#'
 e = Render.Empty
+a = Render.Glyph blue  black '@'
+b = Render.Glyph black  gray '?'
 
-canvas = Render.CanvasLayer [ [ a, b, e, a ]
-                            , [ b, e, e, b ]
-                            , [ b, a, b, a ] ]
+
+backgroundLayer : Render.CanvasLayer
+backgroundLayer =  [ [ w, w, w, w ]
+                   , [ w, e, e, w ]
+                   , [ w, e, e, w ] ]
+
+foregroundLayer : Render.CanvasLayer
+foregroundLayer = [ [ e, e, e, e ]
+                  , [ e, e, a, e ]
+                  , [ e, b, e, e ] ]
 
 main : Signal Element
-main = (\d -> Render.render d canvas) <~ Window.dimensions
+main = (\d -> Render.render d (Render.mergeCanvas backgroundLayer foregroundLayer)) <~ Window.dimensions
 
