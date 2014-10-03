@@ -20,5 +20,7 @@ foregroundLayer = [ [ e, e, e, e ]
                   , [ e, b, e, e ] ]
 
 main : Signal Element
-main = (\d -> Render.render d (Render.mergeCanvas backgroundLayer foregroundLayer)) <~ Window.dimensions
+main = (\d -> Render.render d
+              (Render.mergeCanvas backgroundLayer foregroundLayer))
+        <~ Window.dimensions
 
