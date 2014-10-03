@@ -20,6 +20,7 @@ renderRoot (w, h) canvas =
     |> toElement w h
 
 data Glyph = Glyph Color Color Char
+           | Empty
 
 data CanvasLayer = CanvasLayer [[Glyph]]
 
@@ -28,9 +29,13 @@ data CanvasLayer = CanvasLayer [[Glyph]]
 renderCanvas : CanvasLayer -> [ Html ]
 renderCanvas (CanvasLayer ls) =
   let renderLine l = node "div" [] [] <| map renderGylph l
-      renderGylph (Glyph fc bc chr) = node "span"
-                                         []
-                                         [ "color" := Html.color fc
-                                         , "backgroundColor" := Html.color bc ]
-                                         [ text <| String.cons chr "" ]
+      renderGylph gyl =
+        case gyl of
+          Glyph fc bc chr -> node "span"
+                                  []
+                                  [ "color" := Html.color fc
+                                  , "backgroundColor" := Html.color bc ]
+                                  [ text <| String.cons chr "" ]
+          -- Empty gylphs are rendered as black spaces
+          Empty -> renderGylph <| Glyph black black ' '
   in map renderLine ls
