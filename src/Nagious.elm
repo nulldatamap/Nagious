@@ -10,6 +10,10 @@ import Dict (Dict)
 import Dict
 import Utils (pickyUnion)
 
+-- Next up, make a world, terrain and entity model 
+-- 
+-- 
+
 wallGlyph = Render.Glyph white black '#'
 
 gameMap : Render.CanvasLayer
@@ -72,7 +76,7 @@ filterKeys ks st =
                                     -- Make the list of keys into a map of -1s 
                                     <| Dict.fromList
                                     <| zip ks
-                                    <| repeat (length ks) -1
+                                    <| repeat (length ks) 0
   -- Filter out any un-wanted keys pressed, turn them into commands and update the timers
   in (filter holdCheck ks |> toCommands, { st | holdTimers <- updateKeys })
 
