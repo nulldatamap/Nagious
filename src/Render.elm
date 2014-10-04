@@ -5,14 +5,7 @@ import Html (node, (:=), toElement, Html, text, px)
 import String
 import Array
 import Array (Array, getOrFail, set)
-
-arrayZipWith : (a -> b -> c) -> Array a -> Array b -> Array c
-arrayZipWith f a b =
-  let zw i = f (getOrFail i a) <| getOrFail i b
-  in Array.map zw <| Array.initialize (min (Array.length a) (Array.length b)) identity
-
-modify : Int -> (a -> a) -> Array a -> Array a
-modify i f a = set i (f <| getOrFail i a) a
+import Utils (modify, arrayZipWith)
 
 render : (Int, Int) -> CanvasLayer -> Element
 render dims c = renderRoot dims <| renderCanvas c
@@ -36,6 +29,26 @@ type CanvasLayer = Array (Array Glyph)
 
 newCanvas : Int -> Int -> CanvasLayer
 newCanvas w h = Array.repeat w Empty |> Array.repeat h
+
+canvasWidth : CanvasLayer -> Int
+-- The length of the first row, this might not be correct
+-- but I don't think I'm going to be creating non-rectangular
+-- canvases, so I'll be fine.
+canvasWidth c = Array.length <| getOrFail 0 c
+
+canvasHeight : CanvasLayer -> Int
+canvasHeight c = Array.length c
+
+walkCanvas : ( Int -> Int -> CanvasLayer -> CanvasLayer ) -> CanvasLayer -> CanvasLayer
+-- Walks through each glyph in the canvas with x and y coordinates and applies the given
+-- function to itself for each glyph.
+walkCanvas func canvas =
+  foldl (\hor outercanvas ->
+          foldl (\ver innercanvas -> func ver hor innercanvas)
+                outercanvas
+                [0..canvasWidth canvas - 1] )
+        canvas
+        [0..canvasHeight canvas - 1]
 
 putGlyph : Glyph -> Int -> Int -> CanvasLayer -> CanvasLayer
 putGlyph gyl x y canvas = modify y (\row -> modify x (\_ -> gyl) row) canvas

@@ -8,9 +8,18 @@ import Maybe (Maybe(..), maybe)
 import Char
 import Dict (Dict)
 import Dict
+import Utils (pickyUnion)
+
+wallGlyph = Render.Glyph white black '#'
 
 gameMap : Render.CanvasLayer
-gameMap = Render.newCanvas 80 24
+gameMap =
+  let makeWalls x y canvas =
+        if x == 0 || x == 79
+        || y == 0 || y == 23
+        then Render.putGlyph wallGlyph x y canvas
+        else canvas
+  in Render.walkCanvas makeWalls <| Render.newCanvas 80 24
 
 type Player = { x : Int, y : Int }
 
@@ -57,11 +66,6 @@ filterKeys ks st =
   let holdCheck k =
         let v = Dict.getOrElse 0 k st.holdTimers
         in v == 0 || v > holdThreshold
-      -- Keeps the elements from a that also are in b,
-      -- and adds the new elements from b into the mix.
-      pickyUnion a b =
-        let i = Dict.intersect a b
-        in Dict.union i b
       -- Updates our hold timers for the keys
       -- Do a picky union of the old timers and the new ones and tick them all once
       updateKeys = Dict.map ((+) 1) <| pickyUnion st.holdTimers
