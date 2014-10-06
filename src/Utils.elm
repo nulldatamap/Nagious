@@ -5,7 +5,7 @@ import Array
 import Array (Array, set, getOrFail)
 import Error (raise)
 
-unreachable = raise <| "Unreachable"
+unreachable s = raise <| "Unreachable " ++ s
 
 -- Keeps the elements from a that also are in b,
 -- and adds the new elements from b into the mix.
