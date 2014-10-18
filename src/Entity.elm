@@ -1,6 +1,6 @@
 module Entity where
 
-import Render (CanvasLayer, putGlyph)
+import Render (CanvasLayer)
 
 import Utils (search)
 import Error (raise)

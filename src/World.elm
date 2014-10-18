@@ -1,13 +1,16 @@
 module World where
 
-import Terrain (..)
+import Terrain
+import Terrain (TerrainMap)
 import Entity (..)
-import Render (Glyph(..), putGlyph, CanvasLayer)
+import Render (Glyph(..), CanvasLayer, newCanvas)
+import Matrix
 
 import Dict (Dict)
 import Dict
 import Error (raise)
-import Focus (Focus, create)
+import Focus
+import Focus (Focus, create, get)
 
 type EntityW a = Entity a (World a)
 
@@ -57,6 +60,13 @@ canvas =
     in World { v | canvas <- f v.canvas }
   in create (\r -> val r |> .canvas) upd
 
+terrain : Focus (World a) TerrainMap
+terrain =
+  let upd f r =
+    let v = val r
+    in World { v | terrain <- f v.terrain }
+  in create (\r -> val r |> .terrain) upd
+
 focusEntity : EntityId -> Focus (Dict Int (EntityW a)) (EntityW a)
 focusEntity eid =
   let maybeWrapper f v =
@@ -66,9 +76,16 @@ focusEntity eid =
   in create (Dict.getOrFail eid) (\f r -> Dict.update eid (maybeWrapper f) r)
 
 -- Game loop functionality
+startRender : World a -> World a
+startRender wrld =
+  Focus.update canvas
+               (\canv -> Terrain.render (get terrain wrld) <| newCanvas 80 24 )
+               wrld
 
 update : World a -> World a
 update wrld =
   let updateEntity ent innerWrld =
         foldl (\x y -> updateComponent x ent y) innerWrld ent.components
-  in Dict.foldl (\_ -> updateEntity) wrld <| getEntities wrld
+  in Dict.foldl (\_ -> updateEntity)
+                (startRender wrld)
+                <| getEntities wrld

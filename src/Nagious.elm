@@ -7,6 +7,8 @@ import World
 import Component (..)
 import Entity (..)
 import Command (..)
+import Terrain
+import Matrix
 
 import Debug (log)
 import Window
@@ -33,7 +35,14 @@ newPlayer wrld =
              , Commandable  { commands = [] } ]
   in (\(_, x) -> x) <| addEntity wrld coms
 
-placeHolderTerrain = { width = 0, height  = 0, cells = [] }
+placeHolderTerrain =
+  let createWalls x y trn = 
+        if x == 0 || x == 79
+        || y == 0 || y == 23
+        then Matrix.set Terrain.Wall x y trn
+        else trn
+  in Matrix.walk createWalls
+                 <| Matrix.repeat 80 24 Terrain.Empty
 
 newWorld : WorldI
 newWorld =
@@ -53,6 +62,12 @@ type GameState = { world : WorldI, holdTimers : Dict KeyCode Int }
 newState : GameState
 newState = { world = newWorld, holdTimers = Dict.empty }
 
+-- The first frame is here to render the game before we get any input
+-- we make it actually render by giving it a bogus keypress in order
+-- to bypass the lazy rendering.
+firstFrame : GameState
+firstFrame = (update [0] newState)
+
 handleCommands : GameState -> [Command] -> GameState
 handleCommands state cmds =
   let handleCommand cmd st =
@@ -71,10 +86,6 @@ updateKeys ks st =
                             <| repeat (length ks) 0
   in { st | holdTimers <- ht }
 
-clearCanvas : GameState -> GameState
-clearCanvas st = 
-  { st | world <- Focus.update canvas (\_ -> newCanvas 80 24 ) st.world }
-
 -- Filters and handles input
 update : [KeyCode] -> GameState -> GameState
 update inp state =
@@ -83,7 +94,6 @@ update inp state =
       [] -> state'
       _  -> filterKeys inp state
             |> (handleCommands state')
-            |> clearCanvas
             |> (\st -> { st | world <- World.update st.world })
 
 -- Since this uses elm-html which does diffing, this should be cheap to call
@@ -125,5 +135,5 @@ toCommands ks =
 input : Signal [KeyCode]
 input = sampleOn (fps 15) Keyboard.keysDown
 
-main : Signal Element
-main = lift2 render Window.dimensions (foldp update (update [0] newState) input)
+-- main : Signal Element
+main = lift2 render Window.dimensions (foldp update firstFrame input)

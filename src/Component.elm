@@ -1,10 +1,11 @@
 module Component where
 
-import Render (Glyph, putGlyph)
+import Render (Glyph)
 import Command (..)
 import Entity (..)
 import World (World, entities, focusEntity, canvas)
 import Utils (unreachable)
+import Matrix
 
 import Focus
 import Focus (Focus, create, (=>))
@@ -89,7 +90,7 @@ renderRenderable : Component -> EntityI -> WorldI -> WorldI
 renderRenderable rndr ent wrld = 
   let (Positionable pos) = getComponent isPositionable ent
       (Renderable r) = rndr
-  in Focus.update canvas (\canv -> putGlyph r.glyph pos.x pos.y canv ) wrld
+  in Focus.update canvas (\canv -> Matrix.set r.glyph pos.x pos.y canv ) wrld
 
 -- Commandable functions
 
